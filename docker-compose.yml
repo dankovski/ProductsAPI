@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "${MONGODB_PORT}:${MONGODB_PORT}"
+    environment:
+      MONGODB_INIT_ADMIN_USERNAME: ${MONGODB_INIT_ADMIN_USERNAME}
+      MONGODB_INIT_ADMIN_PASSWORD: ${MONGODB_INIT_ADMIN_PASSWORD}
+      MONGODB_INIT_DATABASE_NAME: ${MONGODB_INIT_DATABASE_NAME}
+    command: [--auth, --quiet]
+    volumes:
+      - ./database/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+  backend:
+    container_name: api
+    command: npm run dev
+    restart: always
+    build: ./api
+    image: api
+    volumes:
+      - ./api/src:/src
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    links:
+      - mongo
+    environment:
+      MONGODB_ADMIN_USERNAME: ${MONGODB_INIT_ADMIN_USERNAME}
+      MONGODB_ADMIN_PASSWORD: ${MONGODB_INIT_ADMIN_PASSWORD}
+      MONGODB_DATABASE_NAME: ${MONGODB_INIT_DATABASE_NAME}
+      MONGODB_PORT: ${MONGODB_PORT}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_HOST: ${BACKEND_HOST}
