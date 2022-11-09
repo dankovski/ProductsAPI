@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
         }
     },
     UpdateDate: {
-        type: Date
+        type: String
     },
     Id:
     {
@@ -33,15 +33,12 @@ const productSchema = new mongoose.Schema({
     }
 }, { versionKey: false });
 
-productSchema.pre('save', async function (next: () => void) {
+productSchema.pre('save', async function (next: (err?: Error) => void) {
     this.set('UpdateDate', new Date().toLocaleString('en-GB', { timeZone: 'Europe/Warsaw' }));
-    next();
-})
-
-productSchema.pre('init', async function (next: () => void) {
-    this.set('UpdateDate', new Date().toLocaleString('en-GB', { timeZone: 'Europe/Warsaw' }));
-    const lastProduct = await Product.findOne({}, {}, { sort: { 'Id': -1 } });
-    this.set('Id', lastProduct?.Id ? lastProduct.Id + 1 : 1);
+    if(!this.Id){
+        const lastProduct = await Product.findOne({}, {}, { sort: { 'Id': -1 } });
+        this.set('Id', lastProduct?.Id ? lastProduct.Id + 1 : 1);
+    }
     next();
 })
 
