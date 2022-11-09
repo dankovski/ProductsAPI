@@ -59,4 +59,15 @@ router.post('/:id', async (req: Request, res: Response) => {
     }
 });
 
+router.delete('/:id', async (req: Request, res: Response) => {
+    const product = await Product.findOne({'Id' : req.params.id});
+    if(product){
+        await product.delete();
+        res.status(400).json({'message': 'product successfully deleted'});
+    }
+    else{
+        res.status(400).json({error: `product with id ${req.params.id} does not exists`});
+    }
+});
+
 export default router;
