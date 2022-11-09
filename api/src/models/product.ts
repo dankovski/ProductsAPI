@@ -4,11 +4,24 @@ const productSchema = new mongoose.Schema({
     Name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        validate(value: string) {
+            if (!value) {
+                throw new Error('name can not be empty')
+            }
+            else if (value.length >= 100) {
+                throw new Error('name is too long')
+            }
+        }
     },
     Price: {
         type: Number,
         required: true,
+        validate(value: number) {
+            if (isNaN(value) || value <= 0) {
+                throw new Error('invalid price')
+            }
+        }
     },
     UpdateDate: {
         type: Date
