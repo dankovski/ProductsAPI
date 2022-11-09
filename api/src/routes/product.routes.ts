@@ -1,0 +1,73 @@
+import { Router, Request, Response } from 'express';
+import Product from '../models/product.js'
+
+const router = Router();
+
+router.get('/', async (req: Request, res: Response) => {
+    const allProducts = await Product.find();
+    res.status(200).json(allProducts);
+});
+
+router.get('/:id', async (req: Request, res: Response) => {
+    const product = await Product.findOne({'Id' : req.params.id});
+    if(product){
+        res.status(200).json(product);
+    }
+    else{
+        res.status(400).json({error: `product with id ${req.params.id} does not exists`});
+    }
+});
+
+router.put('/', async (req: Request, res: Response) => {
+    if (!req.body || !req.body.Price || !req.body.Name) {
+        return res.status(400).json({ message: 'Missing fields' });
+    }
+    else{
+        const product = new Product({
+            Name: req.body.Name,
+            Price: req.body.Price
+        });
+    
+        try {
+            await product.save();
+            res.status(200).json(product);
+        } catch (err: any) {
+            res.status(400).json({ message: (err as Error).message });
+        }
+    }
+});
+
+router.post('/:id', async (req: Request, res: Response) => {
+    const product = await Product.findOne({'Id' : req.params.id});
+    if(product){
+        if (!req.body || (!req.body.Price && !req.body.Name)) {
+            return res.status(400).json({ message: 'Missing fields' });
+        }
+        else{
+            if(req.body.Price){
+                product.Price = req.body.Price
+            }
+            if(req.body.Name){
+                product.Name = req.body.Name
+            }
+            await product.save();
+            return res.status(200).json(product);
+        }
+    }
+    else{
+        res.status(400).json({error: `product with id ${req.params.id} does not exists`});
+    }
+});
+
+router.delete('/:id', async (req: Request, res: Response) => {
+    const product = await Product.findOne({'Id' : req.params.id});
+    if(product){
+        await product.delete();
+        res.status(400).json({'message': 'product successfully deleted'});
+    }
+    else{
+        res.status(400).json({error: `product with id ${req.params.id} does not exists`});
+    }
+});
+
+export default router;
