@@ -8,6 +8,16 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(200).json(allProducts);
 });
 
+router.get('/:id', async (req: Request, res: Response) => {
+    const product = await Product.findOne({'Id' : req.params.id});
+    if(product){
+        res.status(200).json(product);
+    }
+    else{
+        res.status(400).json({error: `product with id ${req.params.id} does not exists`});
+    }
+});
+
 router.put('/', async (req: Request, res: Response) => {
     if (!req.body || !req.body.Price || !req.body.Name) {
         return res.status(400).json({ message: 'Missing fields' });
