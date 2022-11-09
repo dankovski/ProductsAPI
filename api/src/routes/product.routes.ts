@@ -3,6 +3,11 @@ import Product from '../models/product.js'
 
 const router = Router();
 
+router.get('/', async (req: Request, res: Response) => {
+    const allProducts = await Product.find();
+    res.status(200).json(allProducts);
+});
+
 router.put('/', async (req: Request, res: Response) => {
     if (!req.body || !req.body.Price || !req.body.Name) {
         return res.status(400).json({ message: 'Missing fields' });
